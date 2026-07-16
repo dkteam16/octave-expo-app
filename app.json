@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Octave",
-    "slug": "octave-app",
+    "name": "Octave Mettle",
+    "slug": "octave-mettle-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,15 +12,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "in.co.octave.app",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "NSCameraUsageDescription": "Octave uses your camera for product try-on and barcode scanning features.",
-        "NSPhotoLibraryUsageDescription": "Octave needs access to your photos to let you upload images.",
-        "NSFaceIDUsageDescription": "Use Face ID to securely log in to your Octave account."
+        "NSCameraUsageDescription": "Octave Mettle uses your camera for product try-on and barcode scanning features.",
+        "NSPhotoLibraryUsageDescription": "Octave Mettle needs access to your photos to let you upload images.",
+        "NSFaceIDUsageDescription": "Use Face ID to securely log in to your Octave Mettle account."
       }
     },
     "android": {
@@ -30,12 +32,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-splash-screen"],
+    "plugins": [
+      "expo-splash-screen"
+    ],
     "extra": {
       "eas": {
         "projectId": "REPLACE-WITH-YOUR-EAS-PROJECT-ID"
