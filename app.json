@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Octave Mettle",
-    "slug": "octave-mettle-app",
+    "slug": "octave-mettle",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "in.co.octave.app",
+      "bundleIdentifier": "com.octavemettle.app",
       "buildNumber": "1.0.0",
       "infoPlist": {
         "NSCameraUsageDescription": "Octave Mettle uses your camera for product try-on and barcode scanning features.",
@@ -26,8 +26,8 @@
       }
     },
     "android": {
-      "package": "in.co.octave.app",
-      "versionCode": 1,
+      "package": "com.octavemettle.app",
+      "versionCode": 10,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -41,12 +41,22 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "targetSdkVersion": 36
+          }
+        }
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {
-        "projectId": "REPLACE-WITH-YOUR-EAS-PROJECT-ID"
+        "projectId": "1e1adf8a-4023-4dc7-903d-98d7cbebcf3f"
       }
-    }
+    },
+    "owner": "digitalkangarooss-team"
   }
 }
