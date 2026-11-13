@@ -18,6 +18,9 @@
       "android": {
         "buildType": "app-bundle"
       },
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.2"
+      },
       "autoIncrement": true
     }
   },
@@ -28,9 +31,8 @@
         "track": "internal"
       },
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "REPLACE-WITH-APP-STORE-CONNECT-APP-ID",
-        "appleTeamId": "REPLACE-WITH-APPLE-TEAM-ID"
+        "ascAppId": "6814354827",
+        "appleTeamId": "JH4YU7KQ98"
       }
     }
   }
