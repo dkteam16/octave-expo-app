@@ -14,7 +14,11 @@ import NetInfo from "@react-native-community/netinfo";
 import * as SplashScreen from "expo-splash-screen";
 
 import { SITE_URL, isAllowedUrl } from "./src/constants/config";
-import { WebPreviewSite, OfflineScreen } from "./src/components";
+import {
+  WebPreviewSite,
+  OfflineScreen,
+  CouponScreen,
+} from "./src/components";
 import { styles } from "./src/styles/styles";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -29,6 +33,17 @@ export default function App() {
   const [canGoBack, setCanGoBack] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showCoupon, setShowCoupon] = useState(true);
+  const [couponStep, setCouponStep] = useState("select");
+
+  const handleCouponComplete = useCallback(() => {
+    setShowCoupon(false);
+  }, []);
+
+  useEffect(() => {
+    // Ensure splash screen is hidden on launch so CouponScreen or OfflineScreen is visible
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== "android") return;
@@ -92,18 +107,24 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-        <StatusBar style="dark" backgroundColor="#ffffff" />
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          showCoupon && couponStep === "select" && styles.couponDarkSafeArea,
+        ]}
+        edges={["top", "bottom"]}
+      >
+        <StatusBar
+          style={showCoupon && couponStep === "select" ? "light" : "dark"}
+          backgroundColor={
+            showCoupon && couponStep === "select" ? "#1c1714" : "#ffffff"
+          }
+        />
 
         {isOffline ? (
           <OfflineScreen onRetry={handleRetry} />
         ) : (
-          <>
-            {loading && (
-              <View style={styles.loaderOverlay}>
-                <ActivityIndicator size="large" color="#111111" />
-              </View>
-            )}
+          <View style={{ flex: 1, position: "relative" }}>
             <WebView
               {...(Platform.OS !== "web" ? { ref: webviewRef } : {})}
               source={{ uri: SITE_URL }}
@@ -120,9 +141,34 @@ export default function App() {
               sharedCookiesEnabled
               domStorageEnabled
               javaScriptEnabled
+              cacheEnabled
               renderError={() => <OfflineScreen onRetry={handleRetry} />}
             />
-          </>
+
+            {loading && !showCoupon && (
+              <View style={styles.loaderOverlay}>
+                <ActivityIndicator size="large" color="#111111" />
+              </View>
+            )}
+
+            {showCoupon && (
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  {
+                    zIndex: 20,
+                    backgroundColor:
+                      couponStep === "select" ? "#1c1714" : "#ffffff",
+                  },
+                ]}
+              >
+                <CouponScreen
+                  onComplete={handleCouponComplete}
+                  onStepChange={setCouponStep}
+                />
+              </View>
+            )}
+          </View>
         )}
       </SafeAreaView>
     </SafeAreaProvider>
