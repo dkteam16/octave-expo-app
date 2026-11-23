@@ -21,6 +21,40 @@ import {
 } from "./src/components";
 import { styles } from "./src/styles/styles";
 
+const INJECTED_VIDEO_FIX = `
+  (function() {
+    function enableInlineVideos() {
+      var videos = document.querySelectorAll('video');
+      for (var i = 0; i < videos.length; i++) {
+        var v = videos[i];
+        v.setAttribute('playsinline', 'true');
+        v.setAttribute('webkit-playsinline', 'true');
+        v.setAttribute('x5-playsinline', 'true');
+        v.playsInline = true;
+        if (v.hasAttribute('autoplay') || v.autoplay || v.loop) {
+          v.muted = true;
+          v.defaultMuted = true;
+          var p = v.play();
+          if (p !== undefined) {
+            p.catch(function() {});
+          }
+        }
+      }
+    }
+    enableInlineVideos();
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', enableInlineVideos);
+      document.addEventListener('DOMContentLoaded', enableInlineVideos);
+    }
+    if (window.MutationObserver) {
+      new MutationObserver(function() {
+        enableInlineVideos();
+      }).observe(document.documentElement || document.body, { childList: true, subtree: true });
+    }
+  })();
+  true;
+`;
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
@@ -142,6 +176,11 @@ export default function App() {
               domStorageEnabled
               javaScriptEnabled
               cacheEnabled
+              allowsInlineMediaPlayback={true}
+              mediaPlaybackRequiresUserAction={false}
+              allowsFullscreenVideo={true}
+              injectedJavaScriptBeforeContentLoaded={INJECTED_VIDEO_FIX}
+              injectedJavaScript={INJECTED_VIDEO_FIX}
               renderError={() => <OfflineScreen onRetry={handleRetry} />}
             />
 

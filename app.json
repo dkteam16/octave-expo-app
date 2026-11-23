@@ -2,7 +2,7 @@
   "expo": {
     "name": "Octave Mettle",
     "slug": "octave-mettle",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,9 +16,10 @@
       "**/*"
     ],
     "ios": {
+      "icon": "./assets/icon-ios.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.octavemettle.app",
-      "buildNumber": "1.0.1",
+      "buildNumber": "1.0.2",
       "infoPlist": {
         "NSCameraUsageDescription": "Octave Mettle uses your camera for product try-on and barcode scanning features.",
         "NSPhotoLibraryUsageDescription": "Octave Mettle needs access to your photos to let you upload images.",
@@ -28,7 +29,7 @@
     },
     "android": {
       "package": "com.octavemettle.app",
-      "versionCode": 14,
+      "versionCode": 15,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
