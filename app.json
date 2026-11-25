@@ -16,6 +16,7 @@
       "**/*"
     ],
     "ios": {
+      "icon": "./assets/icon-ios.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.octavemettle.app",
       "buildNumber": "1.0.1",
