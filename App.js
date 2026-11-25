@@ -13,7 +13,8 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import NetInfo from "@react-native-community/netinfo";
 import * as SplashScreen from "expo-splash-screen";
 
-import { SITE_URL, isAllowedUrl } from "./src/constants/config";
+import { SITE_URL, BACKEND_API_URL, isAllowedUrl } from "./src/constants/config";
+import { getDeviceId } from "./src/utils/deviceId";
 import {
   WebPreviewSite,
   OfflineScreen,
@@ -69,9 +70,52 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showCoupon, setShowCoupon] = useState(true);
   const [couponStep, setCouponStep] = useState("select");
+  const [deviceChecking, setDeviceChecking] = useState(true);
 
-  const handleCouponComplete = useCallback(() => {
+  const handleCouponComplete = useCallback((code) => {
     setShowCoupon(false);
+    if (code && webviewRef.current) {
+      const discountUrl = `${SITE_URL}discount/${encodeURIComponent(code)}?redirect=/`;
+      webviewRef.current.injectJavaScript(
+        `window.location.href = '${discountUrl}'; true;`
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkDevice = async () => {
+      try {
+        const deviceId = await getDeviceId();
+        const response = await fetch(
+          `${BACKEND_API_URL}/user-devices/device/${deviceId}`
+        );
+        const json = await response.json();
+
+        if (cancelled) return;
+
+        // Device found when success is true and data exists
+        const deviceFound = json.success === true && json.data != null;
+
+        if (deviceFound) {
+          setShowCoupon(false);
+        }
+      } catch (err) {
+        // On network/API error, default to showing the coupon screen (fail-safe)
+        setShowCoupon(true);
+      } finally {
+        if (!cancelled) {
+          setDeviceChecking(false);
+        }
+      }
+    };
+
+    checkDevice();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -157,6 +201,10 @@ export default function App() {
 
         {isOffline ? (
           <OfflineScreen onRetry={handleRetry} />
+        ) : deviceChecking ? (
+          <View style={styles.loaderOverlay}>
+            <ActivityIndicator size="large" color="#111111" />
+          </View>
         ) : (
           <View style={{ flex: 1, position: "relative" }}>
             <WebView

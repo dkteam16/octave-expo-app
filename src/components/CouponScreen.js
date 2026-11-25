@@ -6,8 +6,12 @@ import {
   Image,
   Clipboard,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 
+import { BACKEND_API_URL } from "../constants/config";
+import { getDeviceId } from "../utils/deviceId";
 import { styles } from "../styles/styles";
 
 const heroImage = require("../../assets/coupon-hero-new.jpg");
@@ -246,10 +250,11 @@ function BarcodeGraphic() {
 export function CouponScreen({ onComplete, onStepChange }) {
   const [step, setStep] = useState("select"); // "select" | "online" | "offline"
   const [copied, setCopied] = useState(false);
+  const [storeCode, setStoreCode] = useState(null);
+  const [loadingStoreCode, setLoadingStoreCode] = useState(false);
   const copyTimeoutRef = useRef(null);
 
   const ONLINE_CODE = "APPFIRST300";
-  const STORE_CODE = "ST842791";
 
   const handleStepChange = (newStep) => {
     setStep(newStep);
@@ -266,6 +271,7 @@ export function CouponScreen({ onComplete, onStepChange }) {
   }, []);
 
   const handleCopyCode = (code = ONLINE_CODE) => {
+    if (!code) return;
     try {
       Clipboard.setString(code);
       setCopied(true);
@@ -276,18 +282,62 @@ export function CouponScreen({ onComplete, onStepChange }) {
     }
   };
 
+  const handleSelectOffline = async () => {
+    if (storeCode) {
+      handleStepChange("offline");
+      return;
+    }
+
+    setLoadingStoreCode(true);
+    try {
+      const deviceId = await getDeviceId();
+      const response = await fetch(`${BACKEND_API_URL}/coupons/claim-offline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId }),
+      });
+
+      const json = await response.json();
+      if (json.success && json.data?.coupon) {
+        setStoreCode(json.data.coupon.coupon_code);
+
+        if (json.data.replaced) {
+          Alert.alert(
+            "Code Updated!",
+            "That store code was just claimed! We have assigned you a brand new unique store code."
+          );
+        }
+        handleStepChange("offline");
+      } else {
+        Alert.alert(
+          "Notice",
+          json.message || "No store coupons are currently available."
+        );
+      }
+    } catch (err) {
+      Alert.alert(
+        "Connection Error",
+        "Could not reach coupon service. Please try again."
+      );
+    } finally {
+      setLoadingStoreCode(false);
+    }
+  };
+
   const handleShopNow = () => {
     try {
       Clipboard.setString(ONLINE_CODE);
     } catch {}
     if (onComplete) {
-      onComplete();
+      onComplete(ONLINE_CODE);
     }
   };
 
   const handleContinueApp = () => {
     try {
-      Clipboard.setString(STORE_CODE);
+      if (storeCode) {
+        Clipboard.setString(storeCode);
+      }
     } catch {}
     if (onComplete) {
       onComplete();
@@ -360,19 +410,33 @@ export function CouponScreen({ onComplete, onStepChange }) {
 
             {/* Card 2: Use Offline */}
             <Pressable
-              style={styles.optionCard}
-              onPress={() => handleStepChange("offline")}
+              style={[
+                styles.optionCard,
+                loadingStoreCode && { opacity: 0.7 },
+              ]}
+              onPress={handleSelectOffline}
+              disabled={loadingStoreCode}
             >
               <View style={styles.optionIconCircle}>
-                <StoreIcon />
+                {loadingStoreCode ? (
+                  <ActivityIndicator size="small" color="#111111" />
+                ) : (
+                  <StoreIcon />
+                )}
               </View>
               <View style={styles.optionTextCol}>
                 <Text style={styles.optionTitle}>Use Offline</Text>
                 <Text style={styles.optionSubtitle}>
-                  Show a code at any Octave store
+                  {loadingStoreCode
+                    ? "Claiming store code..."
+                    : "Show a code at any Octave store"}
                 </Text>
               </View>
-              <Text style={styles.optionChevron}>›</Text>
+              {loadingStoreCode ? (
+                <ActivityIndicator size="small" color="#111111" />
+              ) : (
+                <Text style={styles.optionChevron}>›</Text>
+              )}
             </Pressable>
           </View>
         </View>
@@ -504,11 +568,13 @@ export function CouponScreen({ onComplete, onStepChange }) {
         {/* Barcode Card - Tap to copy code same as online */}
         <Pressable
           style={styles.barcodeCard}
-          onPress={() => handleCopyCode(STORE_CODE)}
+          onPress={() => handleCopyCode(storeCode)}
         >
           <BarcodeGraphic />
           <View style={styles.barcodeCodeRow}>
-            <Text style={styles.barcodeNumber}>{STORE_CODE}</Text>
+            <Text style={styles.barcodeNumber}>
+              {storeCode || "Generating code..."}
+            </Text>
             <View style={styles.barcodeCopyIcon}>
               <CopyIcon />
             </View>
